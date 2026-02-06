@@ -3,53 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimal White Clock</title>
+    <title>Fixed Minimal Clock</title>
     <style>
-        /* ตั้งค่าพื้นหลังสีขาว */
         body {
-            background-color: #ffffff; 
-            color: #333333;
+            background-color: #ffffff; /* พื้นหลังเว็บสีขาว */
+            color: #333;
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            position: relative; /* ให้ body เป็นจุดอ้างอิง */
-            min-height: 200vh; /* เพื่อให้เลื่อนหน้าจอได้ */
+            min-height: 2000px; /* เพิ่มความสูงเพื่อให้ลองเลื่อนหน้าจอ */
         }
 
-        /* นาฬิกามุมขวาบน แบบเลื่อนตามเนื้อหา */
-        .mini-clock {
-            position: absolute; 
-            top: 20px;
-            right: 20px;
-            background: #f8f9fa; /* สีเทาอ่อนมากเพื่อให้ดูมีมิติบนพื้นขาว */
+        /* นาฬิกาแบบล็อคติดหน้าจอ */
+        .fixed-clock {
+            position: fixed; /* ล็อคตำแหน่งไว้กับหน้าจอ */
+            top: 15px;      /* ระยะห่างจากด้านบน */
+            right: 15px;    /* ระยะห่างจากด้านขวา */
+            background-color: #ffffff; /* พื้นหลังนาฬิกาสีขาว */
             color: #333;
             padding: 8px 15px;
-            border: 1px solid #eeeeee; /* เส้นขอบบางๆ */
-            border-radius: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd; /* เส้นขอบอ่อนๆ ให้ดูมีมิติ */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* เงาบางๆ */
+            z-index: 9999;  /* ให้อยู่เลเยอร์บนสุดเสมอ */
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         #clock {
-            font-size: 1.2rem;
-            font-weight: 600;
-            letter-spacing: 1px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace; /* ฟอนต์นาฬิกา */
         }
 
-        .content {
-            padding: 60px 30px;
+        .content-area {
+            padding: 50px;
         }
     </style>
 </head>
 <body>
 
-    <div class="mini-clock">
+    <div class="fixed-clock">
         <div id="clock">00:00:00</div>
     </div>
 
-    <div class="content">
-        <h1>หน้าเว็บสีคลีนๆ</h1>
-        <p>นาฬิกาจะอยู่ที่มุมบนขวา และจะเลื่อนหายไปเมื่อคุณ Scroll ลงด้านล่าง</p>
+    <div class="content-area">
+        <h1>ทดสอบการเลื่อนหน้าจอ</h1>
+        <p>ลอง Scroll เมาส์ลงไปด้านล่างดูครับ...</p>
+        <p>↓</p>
+        <p>↓</p>
+        <p>นาฬิกาสีขาวที่มุมขวาจะยังคงลอยอยู่ที่เดิมเสมอ!</p>
     </div>
 
     <script>
