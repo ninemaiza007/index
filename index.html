@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thai Holiday Calendar</title>
+    <title>Thai Holiday Calendar Selectable</title>
     <style>
         /* 1. Layout & Font */
         body {
@@ -28,6 +28,7 @@
             border-radius: 12px;
             z-index: 1000;
             backdrop-filter: blur(10px);
+            border: 1px solid #f0f0f0;
         }
         #clock {
             font-size: 1.5rem;
@@ -40,26 +41,30 @@
         .calendar-container {
             width: 90%;
             max-width: 850px;
-            animation: fadeIn 0.8s ease-in-out;
+            padding: 40px 0;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* 4. Controls (Select Month/Year) */
+        .calendar-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
         }
 
-        .calendar-header {
-            text-align: left;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
+        select {
+            padding: 8px 15px;
+            font-family: inherit;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            outline: none;
         }
 
-        #month-year {
-            font-size: 2rem;
-            margin: 0;
-            font-weight: 600;
-            color: #000;
+        select:focus {
+            border-color: #000;
         }
 
         .calendar-grid {
@@ -86,11 +91,13 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
+            border: 1px solid transparent;
         }
 
         .day-cell.today {
             background: #000;
             color: #fff;
+            border-color: #000;
         }
 
         .date-num {
@@ -98,7 +105,7 @@
             font-weight: 500;
         }
 
-        /* 4. Holiday Tag */
+        /* Holiday Tag */
         .holiday-tag {
             font-size: 0.75rem;
             color: #d83b01;
@@ -111,8 +118,7 @@
             color: #ffaa99;
         }
 
-        /* สำหรับช่องว่าง */
-        .empty { background: transparent; }
+        .empty { background: transparent; cursor: default; }
     </style>
 </head>
 <body>
@@ -122,41 +128,83 @@
     </div>
 
     <div class="calendar-container">
-        <div class="calendar-header">
-            <h1 id="month-year">กำลังโหลด...</h1>
+        <div class="calendar-controls">
+            <select id="select-month"></select>
+            <select id="select-year"></select>
         </div>
+
         <div class="calendar-grid" id="calendar-days"></div>
     </div>
 
     <script>
         let holidays = {};
+        let currentFetchedYear = null;
 
-        async function fetchHolidays() {
-            const year = new Date().getFullYear();
+        const monthSelect = document.getElementById('select-month');
+        const yearSelect = document.getElementById('select-year');
+        const monthsThai = [
+            "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+        ];
+
+        // ตั้งค่าเริ่มต้นของ Select
+        function initControls() {
+            const now = new Date();
+            
+            // เพิ่มเดือน
+            monthsThai.forEach((m, i) => {
+                let opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = m;
+                if(i === now.getMonth()) opt.selected = true;
+                monthSelect.appendChild(opt);
+            });
+
+            // เพิ่มปี (ย้อนหลัง 2 ปี - ล่วงหน้า 5 ปี)
+            const currentYear = now.getFullYear();
+            for(let y = currentYear - 2; y <= currentYear + 5; y++) {
+                let opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = y + 543; // แสดงเป็น พ.ศ.
+                if(y === currentYear) opt.selected = true;
+                yearSelect.appendChild(opt);
+            }
+
+            monthSelect.onchange = renderCalendar;
+            yearSelect.onchange = () => {
+                fetchHolidays(parseInt(yearSelect.value));
+            };
+        }
+
+        async function fetchHolidays(year) {
+            if (currentFetchedYear === year) {
+                renderCalendar();
+                return;
+            }
+            
             try {
                 const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/TH`);
                 const data = await res.json();
+                holidays = {}; // ล้างข้อมูลเก่า
                 data.forEach(h => {
                     const d = h.date.split('-');
                     const key = `${parseInt(d[0])}-${parseInt(d[1])}-${parseInt(d[2])}`;
                     holidays[key] = h.localName;
                 });
+                currentFetchedYear = year;
             } catch (err) {
-                console.warn("Offline: ไม่สามารถดึงวันหยุดได้");
+                console.warn("ไม่สามารถดึงข้อมูลวันหยุดได้");
             }
             renderCalendar();
         }
 
         function renderCalendar() {
-            const now = new Date();
-            const y = now.getFullYear();
-            const m = now.getMonth();
+            const selectedMonth = parseInt(monthSelect.value);
+            const selectedYear = parseInt(yearSelect.value);
+            const today = new Date();
 
-            document.getElementById('month-year').textContent = 
-                now.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
-
-            const firstDay = new Date(y, m, 1).getDay();
-            const daysInMonth = new Date(y, m + 1, 0).getDate();
+            const firstDay = new Date(selectedYear, selectedMonth, 1).getDay();
+            const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
             const grid = document.getElementById('calendar-days');
             grid.innerHTML = "";
 
@@ -170,8 +218,8 @@
             }
 
             for (let i = 1; i <= daysInMonth; i++) {
-                const key = `${y}-${m+1}-${i}`;
-                const isToday = (i === now.getDate() && m === new Date().getMonth()) ? 'today' : '';
+                const key = `${selectedYear}-${selectedMonth + 1}-${i}`;
+                const isToday = (i === today.getDate() && selectedMonth === today.getMonth() && selectedYear === today.getFullYear()) ? 'today' : '';
                 const holidayName = holidays[key] ? `<div class="holiday-tag">${holidays[key]}</div>` : '';
 
                 grid.innerHTML += `
@@ -188,7 +236,8 @@
 
         setInterval(updateClock, 1000);
         updateClock();
-        fetchHolidays();
+        initControls();
+        fetchHolidays(new Date().getFullYear());
     </script>
 </body>
 </html>
