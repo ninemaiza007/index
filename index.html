@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thai Holiday Calendar</title>
+    <title>Welcome</title>
     <style>
+        /* เน้นความ Minimal และใช้ฟอนต์ Aptos */
         body {
             background-color: #ffffff;
             color: #1a1a1a;
@@ -12,193 +13,72 @@
             padding: 0;
             font-family: 'Aptos', 'Segoe UI', system-ui, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .fixed-clock {
-            position: fixed;
-            top: 25px;
-            right: 25px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px 20px;
-            border-radius: 12px;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-            border: 1px solid #f0f0f0;
-        }
-
-        #clock {
-            font-size: 1.5rem;
-            font-weight: 500;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .calendar-container {
-            width: 90%;
-            max-width: 850px;
-            padding: 40px 0;
-        }
-
-        .calendar-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        select {
-            padding: 8px 15px;
-            font-family: inherit;
-            font-size: 1rem;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-        }
-
-        .day-label {
-            padding: 10px;
-            text-align: center;
+        /* นาฬิกาขนาดใหญ่กลางจอ */
+        #big-clock {
+            font-size: 8rem; /* ขนาดใหญ่พิเศษ */
             font-weight: 600;
-            color: #999;
-            font-size: 0.8rem;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            animation: fadeIn 1.5s ease-out;
         }
 
-        .day-cell {
-            min-height: 90px;
-            padding: 12px;
-            background: #fafafa;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid transparent;
+        /* ลิงก์เข้าหน้าถัดไป */
+        .enter-link {
+            font-size: 1.2rem;
+            color: #666;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            animation: fadeIn 2s ease-out;
         }
 
-        .day-cell.today {
-            background: #000;
-            color: #fff;
+        .enter-link:hover {
+            color: #000;
+            border-bottom: 1px solid #000;
+            letter-spacing: 2px;
         }
 
-        .date-num { font-size: 1.2rem; }
-
-        .holiday-tag {
-            font-size: 0.75rem;
-            color: #d83b01;
-            margin-top: 8px;
-            font-weight: 500;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .today .holiday-tag { color: #ffaa99; }
-        .empty { background: transparent; }
+        /* ปรับแต่งสำหรับมือถือ */
+        @media (max-width: 600px) {
+            #big-clock { font-size: 4rem; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="fixed-clock">
-        <div id="clock">00:00:00</div>
-    </div>
+    <div id="big-clock">00:00:00</div>
 
-    <div class="calendar-container">
-        <div class="calendar-controls">
-            <select id="select-month"></select>
-            <select id="select-year"></select>
-        </div>
-        <div class="calendar-grid" id="calendar-days"></div>
-    </div>
+    <a href="calendar.html" class="enter-link">เข้าสู่หน้าปฏิทิน →</a>
 
     <script>
-        let holidays = {};
-        let currentFetchedYear = null;
-
-        const monthSelect = document.getElementById('select-month');
-        const yearSelect = document.getElementById('select-year');
-        const monthsThai = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-
-        function initControls() {
-            const now = new Date();
-            monthsThai.forEach((m, i) => {
-                let opt = document.createElement('option');
-                opt.value = i;
-                opt.textContent = m;
-                if(i === now.getMonth()) opt.selected = true;
-                monthSelect.appendChild(opt);
-            });
-
-            const currentYear = now.getFullYear();
-            for(let y = currentYear - 2; y <= currentYear + 5; y++) {
-                let opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y + 543;
-                if(y === currentYear) opt.selected = true;
-                yearSelect.appendChild(opt);
-            }
-
-            monthSelect.onchange = renderCalendar;
-            yearSelect.onchange = () => fetchHolidays(parseInt(yearSelect.value));
-        }
-
-        async function fetchHolidays(year) {
-            try {
-                const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/TH`);
-                const data = await res.json();
-                holidays = {};
-                data.forEach(h => {
-                    const d = new Date(h.date);
-                    const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-                    holidays[key] = h.localName;
-                });
-                currentFetchedYear = year;
-                renderCalendar();
-            } catch (err) {
-                console.error("โหลดวันหยุดไม่สำเร็จ:", err);
-                renderCalendar();
-            }
-        }
-
-        function renderCalendar() {
-            const selectedMonth = parseInt(monthSelect.value);
-            const selectedYear = parseInt(yearSelect.value);
-            const today = new Date();
-
-            const firstDay = new Date(selectedYear, selectedMonth, 1).getDay();
-            const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-            const grid = document.getElementById('calendar-days');
-            grid.innerHTML = "";
-
-            ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'].forEach(d => {
-                grid.innerHTML += `<div class="day-label">${d}</div>`;
-            });
-
-            for (let i = 0; i < firstDay; i++) {
-                grid.innerHTML += `<div class="day-cell empty"></div>`;
-            }
-
-            for (let i = 1; i <= daysInMonth; i++) {
-                const key = `${selectedYear}-${selectedMonth + 1}-${i}`;
-                const isToday = (i === today.getDate() && selectedMonth === today.getMonth() && selectedYear === today.getFullYear()) ? 'today' : '';
-                const holidayName = holidays[key] ? `<div class="holiday-tag">${holidays[key]}</div>` : '';
-
-                grid.innerHTML += `
-                    <div class="day-cell ${isToday}">
-                        <span class="date-num">${i}</span>
-                        ${holidayName}
-                    </div>`;
-            }
-        }
-
         function updateClock() {
-            document.getElementById('clock').textContent = new Date().toLocaleTimeString('th-TH', { hour12: false });
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('th-TH', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: false 
+            });
+            document.getElementById('big-clock').textContent = timeStr;
         }
 
+        // อัปเดตทุกวินาที
         setInterval(updateClock, 1000);
         updateClock();
-        initControls();
-        fetchHolidays(new Date().getFullYear());
     </script>
 </body>
 </html>
