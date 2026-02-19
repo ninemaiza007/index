@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internet Speed Test</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #1a1a1a;
+            margin: 0;
+            padding: 0;
+            font-family: 'Aptos', 'Segoe UI', system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .header {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 5px; }
+        p { color: #888; font-size: 0.9rem; margin-bottom: 30px; }
+
+        /* Container สำหรับ nPerf Widget */
+        .speedtest-container {
+            width: 100%;
+            max-width: 800px;
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 24px;
+            border: 1px solid #f0f0f0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+        }
+
+        .back-link {
+            margin-bottom: 40px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .back-link:hover { color: #000; letter-spacing: 1px; }
+
+        /* ปรับแต่ง iframe ของ nPerf ให้มนรับกับดีไซน์ */
+        iframe {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Network Speed Test</h1>
+        <p>ตรวจสอบความเร็วอินเทอร์เน็ตของคุณผ่าน nPerf Server</p>
+    </div>
+
+    <div class="speedtest-container">
+        <iframe width="100%" height="600px" frameborder="0" src="https://www.nperf.com/th/iframe/speedtest/?hp=1&m=1&p=1&s=1&u=1&v=1&w=1&x=1&y=1&z=1&color=000000&bg=fafafa&font=Aptos"></iframe>
+    </div>
+
+    <a href="index.html" class="back-link">← กลับหน้าหลัก</a>
+
+</body>
+</html>
