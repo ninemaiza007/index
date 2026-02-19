@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Internet Speed Test</title>
+    <title>Speedtest</title>
     <style>
         body {
             background-color: #ffffff;
@@ -15,56 +15,131 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .header {
-            margin-top: 40px;
+        /* กล่องนาฬิกาและวันที่มุมขวาบน (แบบเดียวกับหน้าปฏิทิน) */
+        .fixed-clock {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #222;
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            z-index: 10000;
             text-align: center;
+            backdrop-filter: blur(5px);
         }
 
-        h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 5px; }
-        p { color: #888; font-size: 0.9rem; margin-bottom: 30px; }
-
-        /* Container สำหรับ nPerf Widget */
-        .speedtest-container {
-            width: 100%;
-            max-width: 800px;
-            background: #fafafa;
-            padding: 20px;
-            border-radius: 24px;
-            border: 1px solid #f0f0f0;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.03);
-            margin-bottom: 30px;
+        #clock {
+            font-size: 1.4rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
         }
 
-        .back-link {
-            margin-bottom: 40px;
+        #date {
+            font-size: 0.8rem;
             color: #666;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: 0.3s;
+            margin-top: 4px;
+            text-transform: uppercase;
         }
-        .back-link:hover { color: #000; letter-spacing: 1px; }
 
-        /* ปรับแต่ง iframe ของ nPerf ให้มนรับกับดีไซน์ */
-        iframe {
-            border-radius: 15px;
+        /* ส่วนหัวข้อหน้า Speedtest */
+        .header {
+            margin-top: 80px; /* เว้นที่ให้นาฬิกา */
+            text-align: center;
+            z-index: 10;
+        }
+
+        h1 { font-size: 1.8rem; margin-bottom: 5px; }
+        p { color: #888; margin-bottom: 20px; }
+
+        /* Container สำหรับ Ookla Speedtest */
+        .speedtest-wrapper {
+            width: 95%;
+            max-width: 1000px;
+            background: #fff;
+            border-radius: 20px;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+            margin-bottom: 100px;
+        }
+
+        /* ปุ่มกลับหน้าหลักแบบ Fixed มุมล่างซ้าย (เลื่อนตามจอ) */
+        .back-link {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10001;
+            text-decoration: none;
+            color: #333;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-link:hover {
+            background: #000;
+            color: #fff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
         }
     </style>
 </head>
 <body>
 
+    <div class="fixed-clock">
+        <div id="clock">00:00:00</div>
+        <div id="date">DD-MMM-YY</div>
+    </div>
+
     <div class="header">
-        <h1>Network Speed Test</h1>
-        <p>ตรวจสอบความเร็วอินเทอร์เน็ตของคุณผ่าน nPerf Server</p>
+        <h1>Ookla Speedtest</h1>
+        <p>ตรวจสอบความเร็วอินเทอร์เน็ตมาตรฐานสากล</p>
     </div>
 
-    <div class="speedtest-container">
-        <iframe width="100%" height="600px" frameborder="0" src="https://www.nperf.com/th/iframe/speedtest/?hp=1&m=1&p=1&s=1&u=1&v=1&w=1&x=1&y=1&z=1&color=000000&bg=fafafa&font=Aptos"></iframe>
+    <div class="speedtest-wrapper">
+        <iframe width="100%" height="650px" frameborder="0" src="https://www.speedtest.net/run"></iframe>
     </div>
 
-    <a href="index.html" class="back-link">← กลับหน้าหลัก</a>
+    <a href="index.html" class="back-link">
+        ← กลับหน้าหลัก
+    </a>
 
+    <script>
+        // ฟังก์ชันอัปเดตนาฬิกาและวันที่ (dd-mmm-yy)
+        function updateClock() {
+            const now = new Date();
+            
+            // เวลา
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = now.getMinutes().toString().padStart(2, '0');
+            const s = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+
+            // วันที่ format dd-mmm-yy
+            const day = now.getDate().toString().padStart(2, '0');
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const mmm = months[now.getMonth()];
+            const yy = now.getFullYear().toString().slice(-2);
+            document.getElementById('date').textContent = `${day}-${mmm}-${yy}`;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
 </body>
 </html>
