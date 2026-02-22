@@ -3,143 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Internet Speed Test</title>
+    <title>IP Checker (v4 & v6)</title>
     <style>
-        body {
-            background-color: #ffffff;
-            color: #1a1a1a;
-            margin: 0;
-            padding: 0;
-            font-family: 'Aptos', 'Segoe UI', system-ui, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* 1. นาฬิกาและวันที่มุมขวาบน */
-        .fixed-clock {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            background-color: rgba(255, 255, 255, 0.9);
-            color: #222;
-            padding: 10px 20px;
-            border-radius: 12px;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            z-index: 10000;
-            text-align: center;
-            backdrop-filter: blur(5px);
-        }
-
-        #clock {
-            font-size: 1.4rem;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            line-height: 1;
-        }
-
-        #date {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 4px;
-            text-transform: uppercase;
-        }
-
-        /* 2. ส่วนหัวข้อ */
-        .header {
-            margin-top: 80px; 
-            text-align: center;
-            z-index: 10;
-        }
-
-        h1 { font-size: 1.8rem; margin-bottom: 5px; }
-        p { color: #888; margin-bottom: 20px; }
-
-        /* 3. Container สำหรับ Ookla Speedtest */
-        .speedtest-wrapper {
-            width: 95%;
-            max-width: 1000px;
-            background: #fff;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            border: 1px solid #f0f0f0;
-            margin-bottom: 100px;
-        }
-
-        /* 4. ปุ่มกลับหน้าหลักแบบ Fixed มุมล่างซ้าย (เลื่อนตามจอ) */
-        .back-link {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 10001;
-            text-decoration: none;
-            color: #333;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 12px 20px;
-            border-radius: 50px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: 1px solid #ddd;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .back-link:hover {
-            background: #000;
-            color: #fff;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f9; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        .ip-box { margin: 1rem 0; padding: 1rem; border-radius: 8px; background: #eee; min-width: 300px; }
+        .v4 { color: #2c3e50; font-weight: bold; }
+        .v6 { color: #2980b9; font-weight: bold; }
+        .error { color: #e74c3c; font-style: italic; }
     </style>
 </head>
 <body>
 
-    <div class="fixed-clock">
-        <div id="clock">00:00:00</div>
-        <div id="date">DD-MMM-YY</div>
+<div class="card">
+    <h2>My IP Address</h2>
+    
+    <div class="ip-box">
+        <div>IPv4:</div>
+        <div id="ipv4" class="v4">Checking...</div>
     </div>
 
-    <div class="header">
-        <h1>Internet Speed Test</h1>
-        <p>ตรวจสอบความเร็วอินเทอร์เน็ตของคุณด้วยมาตรฐาน Ookla</p>
+    <div class="ip-box">
+        <div>IPv6:</div>
+        <div id="ipv6" class="v6">Checking...</div>
     </div>
+    
+    <button onclick="checkIP()">Refresh</button>
+</div>
 
-    <div class="speedtest-wrapper">
-        <iframe width="100%" height="650px" frameborder="0" src="https://www.speedtest.net/run"></iframe>
-    </div>
+<script>
+    async function checkIP() {
+        // Reset text
+        document.getElementById('ipv4').innerText = "Checking...";
+        document.getElementById('ipv6').innerText = "Checking...";
 
-    <a href="index.html" class="back-link">
-        ← กลับหน้าหลัก
-    </a>
+        // ดึง IPv4 (ใช้ Endpoint ที่บังคับ IPv4)
+        fetch('https://api4.ipify.org?format=json')
+            .then(res => res.json())
+            .then(data => document.getElementById('ipv4').innerText = data.ip)
+            .catch(() => document.getElementById('ipv4').innerText = "Unable to detect IPv4");
 
-    <script>
-        // ระบบอัปเดตเวลาและวันที่
-        function updateClock() {
-            const now = new Date();
-            
-            // อัปเดตเวลา
-            const h = now.getHours().toString().padStart(2, '0');
-            const m = now.getMinutes().toString().padStart(2, '0');
-            const s = now.getSeconds().toString().padStart(2, '0');
-            document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+        // ดึง IPv6 (ใช้ Endpoint ที่บังคับ IPv6)
+        fetch('https://api6.ipify.org?format=json')
+            .then(res => res.json())
+            .then(data => document.getElementById('ipv6').innerText = data.ip)
+            .catch(() => document.getElementById('ipv6').innerText = "Unable ipv6");
+    }
 
-            // อัปเดตวันที่ (Format: 22-Feb-26)
-            const day = now.getDate().toString().padStart(2, '0');
-            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const mmm = months[now.getMonth()];
-            const yy = now.getFullYear().toString().slice(-2);
-            document.getElementById('date').textContent = `${day}-${mmm}-${yy}`;
-        }
+    // รันครั้งแรกตอนโหลดหน้าเว็บ
+    checkIP();
+</script>
 
-        setInterval(updateClock, 1000);
-        updateClock();
-    </script>
 </body>
 </html>
