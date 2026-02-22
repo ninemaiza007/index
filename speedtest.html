@@ -1,44 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Speedtest - Adaptive Node Selection</title>
+    <title>Dynamic Speedtest - Global Adaptive</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f1f5f9; --card: #ffffff; --primary: #0f172a;
-            --accent: #f38020; --text-main: #1e293b; --text-dim: #64748b;
+            --bg: #f8fafc; --card: #ffffff; --primary: #0f172a;
+            --accent: #3b82f6; --text-main: #1e293b; --text-dim: #64748b;
         }
         body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .app-container { width: 90%; max-width: 480px; padding: 2.5rem; text-align: center; background: var(--card); border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); position: relative; }
         
-        .back-btn { position: absolute; top: 25px; right: 25px; background: #f8fafc; border: 1px solid #e2e8f0; width: 38px; height: 38px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-main); }
+        .back-btn { position: absolute; top: 25px; right: 25px; background: #f8fafc; border: 1px solid #e2e8f0; width: 38px; height: 38px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-main); transition: 0.2s; }
+        .back-btn:hover { background: #e2e8f0; transform: scale(1.1); }
 
         #status { font-size: 0.75rem; font-weight: 800; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.5px; }
         #speed-num { font-size: 6.5rem; font-weight: 800; line-height: 0.9; letter-spacing: -4px; color: var(--primary); margin: 10px 0; }
         .unit-label { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom: 2.5rem; }
 
-        .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 2rem; background: #f8fafc; border-radius: 20px; padding: 15px; }
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 2rem; background: #f1f5f9; border-radius: 20px; padding: 15px; }
         .stat-item .label { font-size: 0.6rem; text-transform: uppercase; color: var(--text-dim); font-weight: 700; margin-bottom: 4px; }
         .stat-item .value { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
 
         .server-section { text-align: left; margin-bottom: 1.5rem; }
         .server-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; margin-left: 5px; margin-bottom: 8px; display: block; }
-        .server-box { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 12px 15px; transition: 0.2s; }
-        .server-box:focus-within { border-color: var(--accent); }
+        .server-box { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 16px; padding: 12px 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
         select { border: none; background: transparent; font-family: inherit; font-size: 0.9rem; font-weight: 700; color: var(--text-main); outline: none; width: 100%; cursor: pointer; }
 
-        .btn-start { background: var(--primary); color: #fff; border: none; padding: 1.2rem; border-radius: 100px; font-size: 1.1rem; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3); }
-        .btn-start:hover { transform: translateY(-2px); background: #1e293b; }
+        .btn-start { background: var(--primary); color: #fff; border: none; padding: 1.2rem; border-radius: 100px; font-size: 1.1rem; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; }
+        .btn-start:hover { transform: translateY(-2px); filter: contrast(1.2); }
 
-        .info-footer { margin-top: 2rem; padding: 20px; background: #f8fafc; border-radius: 20px; font-size: 0.8rem; text-align: left; border: 1px dashed #e2e8f0; }
-        .info-line { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; }
-        .info-line:last-child { border: none; }
-        .info-val { font-weight: 700; color: var(--primary); }
+        .info-footer { margin-top: 2rem; padding: 20px; background: #f8fafc; border-radius: 20px; font-size: 0.8rem; text-align: left; border: 1px solid #e2e8f0; }
+        .info-line { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; }
+        .info-line:last-child { border: none; margin-bottom: 0; padding-bottom: 0; }
+        .info-val { font-weight: 700; color: var(--primary); text-align: right; }
 
         .progress-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 6px; z-index: 100; }
-        #progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #f38020, #faad14); transition: width 0.2s linear; }
+        #progress-bar { height: 100%; width: 0%; background: var(--accent); transition: width 0.2s linear; }
     </style>
 </head>
 <body>
@@ -48,7 +48,7 @@
 <div class="app-container">
     <button onclick="history.back()" class="back-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
 
-    <div id="status">Analyzing Location...</div>
+    <div id="status">Syncing with Location...</div>
     <div id="speed-num">0.00</div>
     <div class="unit-label">Mbps</div>
 
@@ -59,74 +59,83 @@
     </div>
 
     <div class="server-section">
-        <span class="server-label">Top 20 Nearest Servers</span>
+        <span class="server-label">Nearest Test Points (Top 20)</span>
         <div class="server-box">
             <select id="server-list" onchange="handleServerChange()"></select>
         </div>
     </div>
 
-    <button class="btn-start" id="btn" onclick="startTest()">Run Speedtest</button>
+    <button class="btn-start" id="btn" onclick="startTest()">Begin Speedtest</button>
 
     <div class="info-footer">
-        <div class="info-line"><span>Cloudflare Node</span> <span class="info-val" id="active-node">Checking...</span></div>
-        <div class="info-line"><span>Provider (ISP)</span> <span class="info-val" id="isp-name">--</span></div>
-        <div class="info-line"><span>Your Location</span> <span class="info-val" id="user-loc">--</span></div>
+        <div class="info-line"><span>IP Address</span> <span class="info-val" id="ipv4">--</span></div>
+        <div class="info-line"><span>Provider</span> <span class="info-val" id="isp-name">--</span></div>
+        <div class="info-line"><span>Neighborhood</span> <span class="info-val" id="user-hood">--</span></div>
+        <div class="info-line"><span>City/Country</span> <span class="info-val" id="user-city">--</span></div>
     </div>
 </div>
 
 <script>
-    // ฐานข้อมูล Data Center หลักทั่วโลก
-    const CLOUDFLARE_WORLD_NODES = [
-        { name: "Bangkok (BKK)", lat: 13.75, lon: 100.50 }, { name: "Singapore (SIN)", lat: 1.35, lon: 103.81 },
-        { name: "Tokyo (NRT)", lat: 35.67, lon: 139.65 }, { name: "Seoul (ICN)", lat: 37.56, lon: 126.97 },
-        { name: "Hong Kong (HKG)", lat: 22.31, lon: 114.16 }, { name: "Sydney (SYD)", lat: -33.86, lon: 151.20 },
-        { name: "London (LHR)", lat: 51.50, lon: -0.12 }, { name: "Frankfurt (FRA)", lat: 50.11, lon: 8.68 },
-        { name: "Paris (CDG)", lat: 48.85, lon: 2.35 }, { name: "Amsterdam (AMS)", lat: 52.37, lon: 4.89 },
-        { name: "New York (JFK)", lat: 40.71, lon: -74.00 }, { name: "Los Angeles (LAX)", lat: 34.05, lon: -118.24 },
-        { name: "Chicago (ORD)", lat: 41.87, lon: -87.62 }, { name: "Dallas (DFW)", lat: 32.77, lon: -96.79 },
-        { name: "San Jose (SJC)", lat: 37.33, lon: -121.88 }, { name: "Dubai (DXB)", lat: 25.20, lon: 55.27 },
-        { name: "Mumbai (BOM)", lat: 19.07, lon: 72.87 }, { name: "Johannesburg (JNB)", lat: -26.20, lon: 28.04 },
-        { name: "Sao Paulo (GRU)", lat: -23.55, lon: -46.63 }, { name: "Madrid (MAD)", lat: 40.41, lon: -3.70 }
+    // ขยายฐานข้อมูล Data Center ให้ละเอียดขึ้นทั่วโลก
+    const CLOUDFLARE_POINTS = [
+        { name: "Kuala Lumpur (KUL), MY", lat: 3.13, lon: 101.68 },
+        { name: "Johor Bahru (JHB), MY", lat: 1.48, lon: 103.75 },
+        { name: "Singapore (SIN), SG", lat: 1.35, lon: 103.81 },
+        { name: "Bangkok (BKK), TH", lat: 13.75, lon: 100.50 },
+        { name: "Phnom Penh (PNH), KH", lat: 11.55, lon: 104.91 },
+        { name: "Ho Chi Minh (SGN), VN", lat: 10.82, lon: 106.62 },
+        { name: "Jakarta (CGK), ID", lat: -6.20, lon: 106.84 },
+        { name: "Manila (MNL), PH", lat: 14.59, lon: 120.98 },
+        { name: "Hong Kong (HKG)", lat: 22.31, lon: 114.16 },
+        { name: "Tokyo (NRT), JP", lat: 35.67, lon: 139.65 },
+        { name: "London (LHR), UK", lat: 51.50, lon: -0.12 },
+        { name: "Frankfurt (FRA), DE", lat: 50.11, lon: 8.68 },
+        { name: "Dubai (DXB), AE", lat: 25.20, lon: 55.27 },
+        { name: "New York (JFK), US", lat: 40.71, lon: -74.00 },
+        { name: "Sydney (SYD), AU", lat: -33.86, lon: 151.20 },
+        { name: "Seoul (ICN), KR", lat: 37.56, lon: 126.97 }
     ];
 
     let isRunning = false;
     let abortController = null;
 
-    function getDistance(lat1, lon1, lat2, lon2) {
+    // คำนวณระยะทางแบบ Haversine (แม่นยำที่สุดสำหรับผิวโลก)
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const toRad = x => x * Math.PI / 180;
         const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
     window.onload = async () => {
         try {
-            const ipRes = await fetch('https://ipapi.co/json/');
-            const ipData = await ipRes.json();
-            document.getElementById('isp-name').innerText = ipData.org;
-            document.getElementById('user-loc').innerText = `${ipData.city}, ${ipData.country_code}`;
+            const res = await fetch('https://ipapi.co/json/');
+            const data = await res.json();
+            
+            // แสดงข้อมูลพิกัดและที่อยู่ละเอียด
+            document.getElementById('ipv4').innerText = data.ip;
+            document.getElementById('isp-name').innerText = data.org;
+            document.getElementById('user-hood').innerText = data.region || "N/A";
+            document.getElementById('user-city').innerText = `${data.city}, ${data.country_code}`;
 
-            const traceRes = await fetch('https://1.1.1.1/cdn-cgi/trace');
-            const traceText = await traceRes.text();
-            const trace = Object.fromEntries(traceText.split('\n').map(l => l.split('=')));
-            document.getElementById('active-node').innerText = trace.colo;
-
-            // จัดลำดับ 20 อันดับที่ใกล้ตำแหน่งผู้ใช้ที่สุด ณ ตอนนี้
-            const sortedNodes = CLOUDFLARE_WORLD_NODES.map(node => ({
-                ...node,
-                distance: getDistance(ipData.latitude, ipData.longitude, node.lat, node.lon)
+            // คัดกรองและเรียงลำดับเซิร์ฟเวอร์ตามระยะทางจาก IP ปัจจุบัน
+            const sortedServers = CLOUDFLARE_POINTS.map(point => ({
+                ...point,
+                distance: calculateDistance(data.latitude, data.longitude, point.lat, point.lon)
             })).sort((a, b) => a.distance - b.distance).slice(0, 20);
 
             const select = document.getElementById('server-list');
-            sortedNodes.forEach((node, i) => {
+            sortedServers.forEach((s, i) => {
                 const opt = document.createElement('option');
                 opt.value = i;
-                opt.text = `${node.name} (${Math.round(node.distance)} km)`;
+                opt.text = `${s.name} (${Math.round(s.distance)} km away)`;
                 select.add(opt);
             });
-            document.getElementById('status').innerText = "Ready";
-        } catch(e) { document.getElementById('status').innerText = "Error Loading Info"; }
+
+            document.getElementById('status').innerText = "Ready to Test";
+        } catch(e) { document.getElementById('status').innerText = "Location Sync Error"; }
     };
 
     function handleServerChange() { if(isRunning) startTest(); }
@@ -138,7 +147,7 @@
         const signal = abortController.signal;
 
         document.getElementById('btn').disabled = true;
-        document.getElementById('btn').innerText = "Testing...";
+        document.getElementById('btn').innerText = "Processing...";
         
         try {
             document.getElementById('status').innerText = "Measuring Latency...";
@@ -158,13 +167,8 @@
             }, "https://httpbin.org/post", true, signal);
 
             document.getElementById('status').innerText = "Completed";
-        } catch (e) {
-            if (e.name !== 'AbortError') document.getElementById('status').innerText = "Failed";
-        } finally {
-            isRunning = false;
-            document.getElementById('btn').disabled = false;
-            document.getElementById('btn').innerText = "Run Speedtest";
-        }
+        } catch (e) { if (e.name !== 'AbortError') document.getElementById('status').innerText = "Error"; }
+        finally { isRunning = false; document.getElementById('btn').disabled = false; document.getElementById('btn').innerText = "Begin Speedtest"; }
     }
 
     async function measurePing(signal) {
