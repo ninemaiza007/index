@@ -16,13 +16,11 @@
             --accent: #3b82f6; 
             --text-main: #1e293b; 
             --text-dim: #64748b;
-            /* เพิ่มตัวแปรฟอนต์ใหม่ */
             --font-main: 'Quicksand', 'Mitr', sans-serif;
         }
 
         body { 
             margin: 0; 
-            /* เปลี่ยนมาใช้ตัวแปรฟอนต์ Quicksand + Mitr */
             font-family: var(--font-main); 
             background-color: var(--bg); 
             color: var(--text-main); 
@@ -32,25 +30,73 @@
             min-height: 100vh; 
             overflow-x: hidden; 
             position: relative; 
-            -webkit-font-smoothing: antialiased; /* ทำให้ฟอนต์มนๆ ดูเนียนขึ้น */
+            -webkit-font-smoothing: antialiased;
         }
         
+        /* --- Modern Back Button --- */
         .back-btn {
-            position: fixed; top: 20px; left: 20px; background: var(--card); border: 1px solid #e2e8f0; padding: 10px 18px; border-radius: 12px;
-            cursor: pointer; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.2s ease; z-index: 100;
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            background: var(--card);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 12px 20px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            font-size: 0.95rem;
         }
-        .back-btn:hover { background: #f1f5f9; transform: translateX(-3px); }
 
-        .app-container { width: 90%; max-width: 480px; padding: 2.5rem; text-align: center; background: var(--card); border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); position: relative; }
+        .back-btn:hover {
+            background: var(--primary);
+            color: #ffffff;
+            transform: translateX(-5px);
+            box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.2);
+        }
+
+        .back-btn svg {
+            transition: transform 0.3s ease;
+        }
+
+        .back-btn:hover svg {
+            transform: translateX(-3px);
+        }
+
+        /* --- App Container --- */
+        .app-container { 
+            width: 90%; 
+            max-width: 480px; 
+            padding: 2.5rem; 
+            text-align: center; 
+            background: var(--card); 
+            border-radius: 32px; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); 
+            position: relative; 
+        }
         
-        .test-status-grid { display: flex; justify-content: space-around; margin-bottom: 25px; background: #f1f5f9; padding: 15px; border-radius: 20px; border: 1px solid #e2e8f0; }
+        .test-status-grid { 
+            display: flex; 
+            justify-content: space-around; 
+            margin-bottom: 25px; 
+            background: #f1f5f9; 
+            padding: 15px; 
+            border-radius: 20px; 
+            border: 1px solid #e2e8f0; 
+        }
+
         .status-item { flex: 1; border-right: 1px solid #e2e8f0; }
         .status-item:last-child { border-right: none; }
         .status-label { font-size: 0.65rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 4px; }
         .status-val { color: var(--primary); display: block; font-size: 1.1rem; font-weight: 700; }
 
-        /* ปรับฟอนต์ตัวเลขให้ดูทันสมัยและมนสวยตาม Quicksand */
         #speed-num { font-size: 6.5rem; font-weight: 700; line-height: 0.9; letter-spacing: -3px; color: var(--primary); margin: 10px 0; font-variant-numeric: tabular-nums; }
         .unit-label { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom: 2rem; }
         
@@ -78,8 +124,13 @@
     </style>
 </head>
 <body>
-    <a href="javascript:void(0)" class="back-btn" onclick="location.reload()">
-        <span>←</span> Back
+
+    <a href="index.html" class="back-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>⬅️ Back</span>
     </a>
 
     <div class="app-container">
@@ -94,7 +145,9 @@
         <div class="unit-label" id="unit-txt">Mbps</div>
 
         <div class="server-section">
-            <div class="server-box"><select id="server-list"></select></div>
+            <div class="server-box">
+                <select id="server-list"></select>
+            </div>
         </div>
 
         <button class="btn-start" id="btn" onclick="startTest()">Begin Speedtest</button>
@@ -121,10 +174,9 @@
     </div>
 
     <script>
-        /* JavaScript ของคุณทำงานได้ดีอยู่แล้ว ไม่ต้องแก้ไขส่วนตรรกะครับ */
-        // (ก๊อปปี้ Script เดิมของคุณมาใส่ตรงนี้ได้เลย)
         let userData = null;
         const getAvg = (arr) => arr.length > 0 ? (arr.reduce((a, b) => a + b) / arr.length) : 0;
+        
         function getDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
             const dLat = (lat2-lat1) * Math.PI/180;
@@ -218,7 +270,7 @@
                     speedNum.innerText = avgUl;
                     
                     status.innerText = "ANALYZING FINAL RESULTS...";
-                    setTimeout(() => showFinal(pingSet, dlSet, ulSet), 5000);
+                    setTimeout(() => showFinal(pingSet, dlSet, ulSet), 2000);
                 }
             }, rate);
 
@@ -233,6 +285,7 @@
                 document.getElementById('res-isp').innerText = userData ? userData.org : "Unknown ISP";
                 
                 if(userData) {
+                    // Fix Google Maps Embed URL
                     document.getElementById('map-iframe').src = `https://maps.google.com/maps?q=${userData.latitude},${userData.longitude}&z=14&output=embed`;
                 }
                 document.getElementById('modal').classList.add('active');
