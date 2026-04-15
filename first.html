@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aptos Clock & Stopwatch</title>
+    <title>Aptos Dashboard 00:00:00</title>
     <style>
         body {
             background-color: #ffffff;
@@ -12,55 +12,56 @@
             padding: 0;
             font-family: 'Aptos', 'Segoe UI', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         /* กล่องนาฬิกาหลัก */
         .fixed-clock {
             position: fixed;
-            top: 15px;
-            right: 15px;
-            background-color: rgba(255, 255, 255, 0.9);
-            color: #222;
-            padding: 12px 25px;
-            border-radius: 15px;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 20px 30px;
+            border-radius: 20px;
             border: 1px solid #e0e0e0;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             z-index: 1000; 
             text-align: center;
-            backdrop-filter: blur(8px);
-            min-width: 120px;
+            backdrop-filter: blur(12px);
+            min-width: 180px;
         }
 
         #clock {
-            font-size: 1.8rem;
-            font-weight: 600;
-            font-variant-numeric: tabular-nums;
-            line-height: 1.1;
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1a1a1a;
+            font-variant-numeric: tabular-nums; /* ป้องกันตัวเลขขยับเมื่อวินาทีเปลี่ยน */
+            line-height: 1;
         }
 
         #date {
             font-size: 0.9rem;
-            font-weight: 500;
-            color: #666;
-            margin-top: 4px;
-            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: #888;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
         }
 
-        /* --- ส่วนของ Stopwatch --- */
+        /* ส่วน Stopwatch */
         .stopwatch-container {
-            margin-top: 20px;
-            padding-top: 15px;
             border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: 10px;
         }
 
         #stopwatch-display {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 600;
+            color: #0078d4;
+            margin-bottom: 12px;
             font-variant-numeric: tabular-nums;
-            color: #0078d4; /* สีฟ้าสไตล์ Microsoft */
-            margin-bottom: 10px;
         }
 
         .controls {
@@ -71,35 +72,24 @@
 
         .btn {
             border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
+            padding: 8px 15px;
+            border-radius: 10px;
             cursor: pointer;
             font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.2s;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
 
-        .btn-start { background-color: #28a745; color: white; }
-        .btn-stop { background-color: #dc3545; color: white; }
-        .btn-reset { background-color: #6c757d; color: white; }
-        .btn:hover { opacity: 0.8; transform: translateY(-1px); }
-        .btn:active { transform: translateY(0); }
+        .btn-start { background: #e1f5fe; color: #0288d1; }
+        .btn-stop { background: #ffebee; color: #d32f2f; }
+        .btn-reset { background: #f5f5f5; color: #616161; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
         #fireworks-canvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; 
-            z-index: -1; 
-        }
-
-        .content { 
-            position: relative;
-            padding: 60px 50px; 
-            z-index: 1;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: -1;
         }
     </style>
 </head>
@@ -108,11 +98,11 @@
     <canvas id="fireworks-canvas"></canvas>
 
     <div class="fixed-clock">
+        <div id="date">15-APR-26</div>
         <div id="clock">00:00:00</div>
-        <div id="date">01-JAN-26</div>
 
         <div class="stopwatch-container">
-            <div id="stopwatch-display">00:00.00</div>
+            <div id="stopwatch-display">0:00:00</div>
             <div class="controls">
                 <button class="btn btn-start" onclick="startStopwatch()">Start</button>
                 <button class="btn btn-stop" onclick="stopStopwatch()">Stop</button>
@@ -121,111 +111,43 @@
         </div>
     </div>
 
-    <div class="content">
-        <h1>Aptos Dashboard</h1>
-        <p>นาฬิกาจะจุดพลุฉลองทุกๆ ต้นชั่วโมง หรือคลิกที่ว่างเพื่อจุดพลุเอง</p>
-    </div>
-
     <script>
-        const canvas = document.getElementById('fireworks-canvas');
-        const ctx = canvas.getContext('2d');
-        const clockElement = document.getElementById('clock');
-        const dateElement = document.getElementById('date');
-        let particles = [];
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        // --- ระบบพลุ (เหมือนเดิม) ---
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x; this.y = y; this.color = color;
-                this.velocity = { x: (Math.random() - 0.5) * 8, y: (Math.random() - 0.5) * 8 };
-                this.alpha = 1; this.friction = 0.95; this.gravity = 0.05;
-            }
-            draw() {
-                ctx.save(); ctx.globalAlpha = this.alpha; ctx.beginPath();
-                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2); ctx.fillStyle = this.color;
-                ctx.fill(); ctx.restore();
-            }
-            update() {
-                this.velocity.x *= this.friction; this.velocity.y *= this.friction;
-                this.velocity.y += this.gravity; this.x += this.velocity.x; this.y += this.velocity.y;
-                this.alpha -= 0.01;
-            }
-        }
-
-        function createFirework(x, y) {
-            const posX = x || Math.random() * canvas.width;
-            const posY = y || Math.random() * (canvas.height * 0.4) + (canvas.height * 0.1);
-            const color = `hsl(${Math.random() * 360}, 70%, 50%)`;
-            for (let i = 0; i < 40; i++) particles.push(new Particle(posX, posY, color));
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].update(); particles[i].draw();
-                if (particles[i].alpha <= 0) particles.splice(i, 1);
-            }
-            requestAnimationFrame(animate);
-        }
-        animate();
-
-        // --- ระบบนาฬิกาปกติ ---
+        // --- ระบบนาฬิกาปัจจุบัน ---
         function updateClock() {
             const now = new Date();
-            clockElement.textContent = now.toLocaleTimeString('en-GB', { hour12: false });
-            
-            const day = now.getDate().toString().padStart(2, '0');
-            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const mmm = months[now.getMonth()];
-            const yy = now.getFullYear().toString().slice(-2);
-            dateElement.textContent = `${day}-${mmm}-${yy}`;
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = now.getMinutes().toString().padStart(2, '0');
+            const s = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${h}:${m}:${s}`;
 
-            if (now.getMinutes() === 0 && now.getSeconds() === 0) {
-                for(let i=0; i<8; i++) setTimeout(createFirework, i * 400);
-            }
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const day = now.getDate().toString().padStart(2, '0');
+            document.getElementById('date').textContent = `${day}-${months[now.getMonth()]}-${now.getFullYear().toString().slice(-2)}`;
+            
+            // พลุอัตโนมัติทุกต้นชั่วโมง
+            if (now.getMinutes() === 0 && now.getSeconds() === 0) triggerHourlyFireworks();
         }
         setInterval(updateClock, 1000);
         updateClock();
 
-        // --- ระบบนาฬิกาจับเวลา (Stopwatch Logic) ---
-        let startTime;
-        let elapsedTime = 0;
-        let timerInterval;
-
-        function timeToString(time) {
-            let diffInHrs = time / 3600000;
-            let hh = Math.floor(diffInHrs);
-
-            let diffInMin = (diffInHrs - hh) * 60;
-            let mm = Math.floor(diffInMin);
-
-            let diffInSec = (diffInMin - mm) * 60;
-            let ss = Math.floor(diffInSec);
-
-            let diffInMs = (diffInSec - ss) * 100;
-            let ms = Math.floor(diffInMs);
-
-            let formattedMM = mm.toString().padStart(2, "0");
-            let formattedSS = ss.toString().padStart(2, "0");
-            let formattedMS = ms.toString().padStart(2, "0");
-
-            return `${formattedMM}:${formattedSS}.${formattedMS}`;
-        }
+        // --- ระบบนาฬิกาจับเวลา (0:00:00) ---
+        let startTime, elapsedTime = 0, timerInterval;
 
         function startStopwatch() {
-            if (timerInterval) return; // กันการกดซ้ำ
+            if (timerInterval) return;
             startTime = Date.now() - elapsedTime;
-            timerInterval = setInterval(function printTime() {
+            timerInterval = setInterval(() => {
                 elapsedTime = Date.now() - startTime;
-                document.getElementById("stopwatch-display").innerHTML = timeToString(elapsedTime);
-            }, 10);
+                
+                const totalSecs = Math.floor(elapsedTime / 1000);
+                const h = Math.floor(totalSecs / 3600);
+                const m = Math.floor((totalSecs % 3600) / 60);
+                const s = totalSecs % 60;
+
+                // รูปแบบ 0:00:00 (ชั่วโมงตัวเดียว นาที/วินาที สองตัว)
+                const formatted = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                document.getElementById("stopwatch-display").textContent = formatted;
+            }, 100);
         }
 
         function stopStopwatch() {
@@ -236,15 +158,55 @@
         function resetStopwatch() {
             stopStopwatch();
             elapsedTime = 0;
-            document.getElementById("stopwatch-display").innerHTML = "00:00.00";
+            document.getElementById("stopwatch-display").textContent = "0:00:00";
         }
 
-        // คลิกเพื่อจุดพลุ
-        window.addEventListener('mousedown', (e) => {
-            if (!e.target.closest('.fixed-clock')) { // ไม่จุดพลุถ้ากดโดนปุ่ม
-                createFirework(e.clientX, e.clientY);
+        // --- ระบบพลุ ---
+        const canvas = document.getElementById('fireworks-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+        window.onresize();
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x; this.y = y;
+                this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                this.v = { x: (Math.random() - 0.5) * 6, y: (Math.random() - 0.5) * 6 };
+                this.a = 1;
             }
-        });
+            draw() {
+                ctx.globalAlpha = this.a;
+                ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, 2.5, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        function triggerHourlyFireworks() {
+            for(let i=0; i<5; i++) {
+                setTimeout(() => {
+                    const rx = Math.random() * canvas.width;
+                    const ry = Math.random() * (canvas.height * 0.5);
+                    for(let j=0; j<40; j++) particles.push(new Particle(rx, ry));
+                }, i * 500);
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles.forEach((p, i) => {
+                p.x += p.v.x; p.y += p.v.y; p.v.y += 0.05; p.a -= 0.01;
+                if (p.a <= 0) particles.splice(i, 1); else p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        window.onclick = (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                for(let i=0; i<30; i++) particles.push(new Particle(e.clientX, e.clientY));
+            }
+        };
     </script>
 </body>
 </html>
