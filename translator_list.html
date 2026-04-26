@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Translator Supported Languages</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Thai:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0f14;
+    --surface: #111820;
+    --surface2: #1a2330;
+    --border: #1f2d3d;
+    --accent: #4ade80;
+    --accent2: #22d3ee;
+    --warn: #fbbf24;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --dim: #334155;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans Thai', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid bg ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(74,222,128,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,222,128,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ── */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 3rem 2rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(74,222,128,.06) 0%, transparent 100%);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .tag {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(74,222,128,.1);
+    border: 1px solid rgba(74,222,128,.2);
+    padding: 3px 10px;
+    border-radius: 99px;
+    letter-spacing: .08em;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    margin-bottom: .5rem;
+  }
+  h1 em { color: var(--accent); font-style: normal; }
+  .subtitle {
+    color: var(--muted);
+    font-size: .95rem;
+    margin-bottom: 1.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* ── Stats row ── */
+  .stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: .5rem;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .6rem 1.2rem;
+    display: flex;
+    align-items: baseline;
+    gap: .5rem;
+  }
+  .stat-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .stat-label { font-size: .8rem; color: var(--muted); }
+
+  /* ── Controls ── */
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(11,15,20,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: .9rem 2rem;
+  }
+  .controls-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 14px;
+    pointer-events: none;
+  }
+  input[type="search"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: .55rem .75rem .55rem 2.2rem;
+    font-size: .88rem;
+    font-family: 'IBM Plex Mono', monospace;
+    outline: none;
+    transition: border-color .2s;
+  }
+  input[type="search"]:focus { border-color: var(--accent); }
+  input[type="search"]::placeholder { color: var(--dim); }
+
+  .filter-btns { display: flex; gap: .4rem; }
+  .flt {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: .5rem 1rem;
+    font-size: .8rem;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .flt:hover { border-color: var(--accent); color: var(--accent); }
+  .flt.active { background: rgba(74,222,128,.12); border-color: var(--accent); color: var(--accent); }
+
+  .result-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .78rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ── Main ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Table ── */
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .875rem;
+  }
+  thead {
+    background: var(--surface2);
+    position: sticky;
+    top: 57px;
+    z-index: 5;
+  }
+  thead th {
+    padding: .75rem 1rem;
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .1em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  thead th:hover { color: var(--text); }
+  thead th.sorted { color: var(--accent); }
+  thead th .sort-icon { margin-left: 4px; opacity: .5; }
+  thead th.sorted .sort-icon { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(31,45,61,.6);
+    transition: background .1s;
+    animation: fadeIn .3s ease both;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  td {
+    padding: .65rem 1rem;
+    vertical-align: middle;
+  }
+  td.num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .75rem;
+    color: var(--dim);
+    width: 52px;
+  }
+  td.name { font-weight: 400; }
+  td.code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .8rem;
+    color: var(--accent2);
+  }
+  .copy-btn {
+    background: rgba(34,211,238,.1);
+    border: 1px solid rgba(34,211,238,.2);
+    color: var(--accent2);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: .72rem;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    transition: all .15s;
+    margin-left: 6px;
+    opacity: 0;
+  }
+  tr:hover .copy-btn { opacity: 1; }
+  .copy-btn:hover { background: rgba(34,211,238,.2); }
+  .copy-btn.copied { color: var(--accent); border-color: rgba(74,222,128,.3); background: rgba(74,222,128,.1); }
+
+  .badge {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .7rem;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+  .badge-official { background: rgba(74,222,128,.1); color: var(--accent); border: 1px solid rgba(74,222,128,.25); }
+  .badge-experimental { background: rgba(251,191,36,.08); color: var(--warn); border: 1px solid rgba(251,191,36,.2); }
+
+  /* ── Empty ── */
+  .empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .85rem;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: .78rem;
+    color: var(--dim);
+    font-family: 'IBM Plex Mono', monospace;
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .8rem;
+    padding: .6rem 1.2rem;
+    border-radius: 8px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all .2s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  #toast.show { opacity: 1; transform: none; }
+
+  @media (max-width: 600px) {
+    header, main { padding-left: 1rem; padding-right: 1rem; }
+    .controls { padding: .75rem 1rem; }
+    td.num { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="tag">Google Cloud Translation API</div>
+    <h1>Supported <em>Languages</em></h1>
+    <p class="subtitle">// รายการภาษาทั้งหมดที่รองรับ · อัปเดตจาก Official Docs</p>
+    <div class="stats">
+      <div class="stat"><span class="stat-num">232</span><span class="stat-label">ภาษาทั้งหมด</span></div>
+      <div class="stat"><span class="stat-num" style="color:var(--accent)">217</span><span class="stat-label">Official</span></div>
+      <div class="stat"><span class="stat-num" style="color:var(--warn)">15</span><span class="stat-label">Experimental</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="search" id="search" placeholder="ค้นหาชื่อภาษา หรือ language code...">
+    </div>
+    <div class="filter-btns">
+      <button class="flt active" data-f="all">ทั้งหมด</button>
+      <button class="flt" data-f="official">✅ Official</button>
+      <button class="flt" data-f="experimental">⚠️ Experimental</button>
+    </div>
+    <span class="result-count" id="count">232 รายการ</span>
+  </div>
+</div>
+
+<main>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="num">#</th>
+          <th data-col="name" class="sorted"># ชื่อภาษา <span class="sort-icon">↑</span></th>
+          <th data-col="code">Code <span class="sort-icon">↕</span></th>
+          <th data-col="status">สถานะ <span class="sort-icon">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</main>
+
+<footer>
+  ข้อมูลจาก <a href="https://cloud.google.com/translate/docs/languages" target="_blank">cloud.google.com/translate/docs/languages</a>
+  &nbsp;·&nbsp; สร้างด้วย Claude AI
+</footer>
+
+<div id="toast">copied!</div>
+
+<script>
+const langs = [
+  ["Abkhaz","ab","official"],["Acehnese","ace","official"],["Acholi","ach","official"],
+  ["Afrikaans","af","official"],["Albanian","sq","official"],["Alur","alz","official"],
+  ["Amharic","am","experimental"],["Arabic","ar","official"],["Arabic (Saudi Arabia)","ar-SA","official"],
+  ["Armenian","hy","experimental"],["Assamese","as","official"],["Awadhi","awa","official"],
+  ["Aymara","ay","official"],["Azerbaijani","az","official"],["Balinese","ban","official"],
+  ["Bambara","bm","official"],["Bashkir","ba","official"],["Basque","eu","experimental"],
+  ["Batak Karo","btx","official"],["Batak Simalungun","bts","official"],["Batak Toba","bbc","official"],
+  ["Belarusian","be","official"],["Bemba","bem","official"],["Bengali","bn","official"],
+  ["Bengali (India)","bn-IN","official"],["Betawi","bew","official"],["Bhojpuri","bho","official"],
+  ["Bikol","bik","official"],["Bosnian","bs","official"],["Bosnian (Cyrillic)","bs-Cyrl","official"],
+  ["Breton","br","official"],["Bulgarian","bg","official"],["Buryat","bua","official"],
+  ["Burmese","my","official"],["Cantonese","yue","official"],["Catalan","ca","official"],
+  ["Cebuano","ceb","official"],["Chichewa (Nyanja)","ny","official"],["Chinese","zh","official"],
+  ["Chinese (Simplified)","zh-CN","official"],["Chinese (Traditional)","zh-TW","official"],
+  ["Chinese (Hong Kong)","zh-HK","official"],["Chinese (Simplified)","zh-Hans","official"],
+  ["Chinese (Traditional)","zh-Hant","official"],["Chuvash","cv","official"],
+  ["Corsican","co","official"],["Crimean Tatar","crh","official"],["Croatian","hr","official"],
+  ["Czech","cs","official"],["Danish","da","official"],["Dinka","din","official"],
+  ["Divehi","dv","official"],["Dogri","doi","official"],["Dombe","dov","official"],
+  ["Dutch","nl","official"],["Dutch (Belgium)","nl-BE","official"],["Dzongkha","dz","official"],
+  ["English","en","official"],["English (Australia)","en-AU","official"],["English (Canada)","en-CA","official"],
+  ["English (New Zealand)","en-NZ","official"],["English (Philippines)","en-PH","official"],
+  ["English (South Africa)","en-ZA","official"],["English (United Kingdom)","en-GB","official"],
+  ["English (United States)","en-US","official"],["Esperanto","eo","official"],
+  ["Estonian","et","official"],["Ewe","ee","official"],["Fijian","fj","official"],
+  ["Filipino","fil","official"],["Finnish","fi","official"],["French","fr","official"],
+  ["French (Canada)","fr-CA","official"],["French (Switzerland)","fr-CH","official"],
+  ["Frisian","fy","official"],["Fulfulde","ff","official"],["Ga","gaa","official"],
+  ["Galician","gl","official"],["Ganda (Luganda)","lg","official"],["Georgian","ka","official"],
+  ["German","de","official"],["Greek","el","official"],["Guarani","gn","official"],
+  ["Gujarati","gu","official"],["Haitian Creole","ht","official"],["Hakha Chin","cnh","official"],
+  ["Hausa","ha","experimental"],["Hawaiian","haw","official"],["Hebrew","he","official"],
+  ["Hiligaynon","hil","official"],["Hindi","hi","official"],["Hmong","hmn","official"],
+  ["Hungarian","hu","official"],["Hunsrik","hrx","official"],["Icelandic","is","official"],
+  ["Igbo","ig","experimental"],["Iloko","ilo","official"],["Indonesian","id","official"],
+  ["Irish","ga","experimental"],["Italian","it","official"],["Japanese","ja","official"],
+  ["Javanese","jw","official"],["Kannada","kn","official"],["Kapampangan","pam","official"],
+  ["Kazakh","kk","official"],["Khmer","km","official"],["Kiga","cgg","official"],
+  ["Kinyarwanda","rw","official"],["Kituba","ktu","official"],["Konkani","gom","official"],
+  ["Korean","ko","official"],["Krio","kri","official"],["Kurdish (Kurmanji)","ku","official"],
+  ["Kurdish (Sorani)","ckb","official"],["Kyrgyz","ky","official"],["Lao","lo","official"],
+  ["Latgalian","ltg","official"],["Latin","la","official"],["Latvian","lv","official"],
+  ["Ligurian","lij","official"],["Limburgan","li","official"],["Lingala","ln","official"],
+  ["Lithuanian","lt","official"],["Lombard","lmo","official"],["Luo","luo","official"],
+  ["Luxembourgish","lb","experimental"],["Macedonian","mk","official"],["Maithili","mai","official"],
+  ["Makassar","mak","official"],["Malagasy","mg","official"],["Malay","ms","official"],
+  ["Malay (Jawi)","ms-Arab","official"],["Malayalam","ml","official"],["Maltese","mt","experimental"],
+  ["Maori","mi","official"],["Marathi","mr","official"],["Meadow Mari","chm","official"],
+  ["Meiteilon (Manipuri)","mni-Mtei","official"],["Minang","min","official"],["Mizo","lus","official"],
+  ["Mongolian","mn","experimental"],["Ndebele (South)","nr","official"],["Nepalbhasa (Newari)","new","official"],
+  ["Nepali","ne","official"],["Northern Sotho (Sepedi)","nso","official"],["Norwegian","no","official"],
+  ["Norwegian Bokmal","nb","official"],["Nuer","nus","official"],["Occitan","oc","official"],
+  ["Odia (Oriya)","or","experimental"],["Oromo","om","official"],["Pangasinan","pag","official"],
+  ["Papiamento","pap","official"],["Pashto","ps","official"],["Persian","fa","official"],
+  ["Polish","pl","official"],["Portuguese","pt","official"],["Portuguese (Brazil)","pt-BR","official"],
+  ["Portuguese (Portugal)","pt-PT","official"],["Punjabi","pa","official"],
+  ["Punjabi (Pakistan)","pa-PK","official"],["Punjabi (Shahmukhi)","pa-Arab","official"],
+  ["Quechua","qu","official"],["Romani","rom","official"],["Romanian","ro","official"],
+  ["Rundi","rn","official"],["Russian","ru","official"],["Samoan","sm","official"],
+  ["Sango","sg","official"],["Sanskrit","sa","official"],["Scots Gaelic","gd","experimental"],
+  ["Serbian","sr","experimental"],["Sesotho","st","official"],["Seychellois Creole","crs","official"],
+  ["Shan","shn","official"],["Shona","sn","official"],["Sicilian","scn","official"],
+  ["Silesian","szl","official"],["Sindhi","sd","official"],["Sinhala","si","official"],
+  ["Slovak","sk","official"],["Slovenian","sl","official"],["Somali","so","experimental"],
+  ["Spanish","es","official"],["Spanish (Argentina)","es-AR","official"],["Spanish (Chile)","es-CL","official"],
+  ["Spanish (Colombia)","es-CO","official"],["Spanish (Costa Rica)","es-CR","official"],
+  ["Spanish (Ecuador)","es-EC","official"],["Spanish (El Salvador)","es-SV","official"],
+  ["Spanish (Guatemala)","es-GT","official"],["Spanish (Haiti)","es-HT","official"],
+  ["Spanish (Honduras)","es-HN","official"],["Spanish (Latin America)","es-419","official"],
+  ["Spanish (Mexico)","es-MX","official"],["Spanish (Nicaragua)","es-NI","official"],
+  ["Spanish (Panama)","es-PA","official"],["Spanish (Paraguay)","es-PY","official"],
+  ["Spanish (Peru)","es-PE","official"],["Spanish (Puerto Rico)","es-PR","official"],
+  ["Spanish (Spain)","es-ES","official"],["Spanish (United States)","es-US","official"],
+  ["Spanish (Uruguay)","es-UY","official"],["Spanish (Venezuela)","es-VE","official"],
+  ["Sundanese","su","official"],["Swahili","sw","official"],["Swati","ss","official"],
+  ["Swedish","sv","official"],["Tagalog","tl","official"],["Tajik","tg","experimental"],
+  ["Tamil","ta","official"],["Tatar","tt","official"],["Telugu","te","official"],
+  ["Tetum","tet","official"],["Thai","th","official"],["Tigrinya","ti","official"],
+  ["Tsonga","ts","official"],["Tswana","tn","official"],["Turkish","tr","official"],
+  ["Turkmen","tk","official"],["Twi (Akan)","ak","official"],["Ukrainian","uk","official"],
+  ["Urdu","ur","official"],["Uyghur","ug","official"],["Uzbek","uz","official"],
+  ["Vietnamese","vi","official"],["Welsh","cy","official"],["Xhosa","xh","official"],
+  ["Yiddish","yi","official"],["Yoruba","yo","official"],["Yucatec Maya","yua","official"],
+  ["Zulu","zu","official"]
+];
+
+let sortCol = 'name', sortDir = 1, filterVal = 'all', query = '';
+
+function render() {
+  let data = langs.filter(([name, code, status]) => {
+    const q = query.toLowerCase();
+    const matchQ = !q || name.toLowerCase().includes(q) || code.toLowerCase().includes(q);
+    const matchF = filterVal === 'all' || status === filterVal;
+    return matchQ && matchF;
+  });
+
+  const colIdx = {name:0, code:1, status:2};
+  data.sort((a,b) => {
+    const av = a[colIdx[sortCol]], bv = b[colIdx[sortCol]];
+    return av < bv ? -sortDir : av > bv ? sortDir : 0;
+  });
+
+  document.getElementById('count').textContent = data.length + ' รายการ';
+
+  const tbody = document.getElementById('tbody');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="empty">— ไม่พบภาษาที่ค้นหา —</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(([name, code, status], i) => `
+    <tr style="animation-delay:${Math.min(i*12,300)}ms">
+      <td class="num">${i+1}</td>
+      <td class="name">${name}</td>
+      <td class="code">
+        ${code}
+        <button class="copy-btn" onclick="copyCode('${code}',this)">copy</button>
+      </td>
+      <td>
+        <span class="badge badge-${status}">
+          ${status === 'official' ? '✅ Official' : '⚠️ Experimental'}
+        </span>
+      </td>
+    </tr>`).join('');
+}
+
+// Search
+document.getElementById('search').addEventListener('input', e => {
+  query = e.target.value;
+  render();
+});
+
+// Filter
+document.querySelectorAll('.flt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.flt').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterVal = btn.dataset.f;
+    render();
+  });
+});
+
+// Sort
+document.querySelectorAll('thead th[data-col]').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    if (sortCol === col) sortDir *= -1;
+    else { sortCol = col; sortDir = 1; }
+    document.querySelectorAll('thead th').forEach(t => {
+      t.classList.remove('sorted');
+      const icon = t.querySelector('.sort-icon');
+      if (icon) icon.textContent = '↕';
+    });
+    th.classList.add('sorted');
+    const icon = th.querySelector('.sort-icon');
+    if (icon) icon.textContent = sortDir === 1 ? '↑' : '↓';
+    render();
+  });
+});
+
+// Copy
+let toastTimer;
+function copyCode(code, btn) {
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'done!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+    const toast = document.getElementById('toast');
+    toast.textContent = `"${code}" copied!`;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
